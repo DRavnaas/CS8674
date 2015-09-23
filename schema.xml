@@ -29,7 +29,7 @@
  http://wiki.apache.org/solr/SchemaXml
 -->
 
-<schema name="medicare" version="1.5">
+<schema name="example" version="1.5">
   <!-- attribute "name" is the name of this schema and is only used for display purposes.
        version="x.y" is Solr's version number for the schema syntax and 
        semantics.  It should not normally be changed by applications.
@@ -116,9 +116,6 @@
        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
        RESTRICTION: the glob-like pattern in the name attribute must have
        a "*" only at the start or the end.  -->
-
-   <!-- DoyleRav: Could comment dynamicField with name="*... out.  They could be useful, and don't hurt anything if we don't use them 
-        Will keep enabled for now - just need to be sure our field names don't conflict with these naming conventions. -->
    
    <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
    <dynamicField name="*_is" type="int"    indexed="true"  stored="true"  multiValued="true"/>
@@ -168,43 +165,6 @@
    -->
  <uniqueKey>id</uniqueKey>
 
-  <!-- DoyleRav: Define our fields for the medicare columns
-       Note that id is defined above (and is a special field) -->
-  <!-- NPI,NPPES_PROVIDER_LAST_ORG_NAME,NPPES_PROVIDER_FIRST_NAME,NPPES_PROVIDER_MI,NPPES_CREDENTIALS,NPPES_PROVIDER_GENDER,NPPES_ENTITY_CODE,NPPES_PROVIDER_STREET1,NPPES_PROVIDER_STREET2,NPPES_PROVIDER_CITY,NPPES_PROVIDER_ZIP,NPPES_PROVIDER_STATE,NPPES_PROVIDER_COUNTRY,PROVIDER_TYPE,MEDICARE_PARTICIPATION_INDICATOR,PLACE_OF_SERVICE,HCPCS_CODE,HCPCS_DESCRIPTION,HCPCS_DRUG_INDICATOR,LINE_SRVC_CNT,BENE_UNIQUE_CNT,BENE_DAY_SRVC_CNT,AVERAGE_MEDICARE_ALLOWED_AMT,STDEV_MEDICARE_ALLOWED_AMT,AVERAGE_SUBMITTED_CHRG_AMT,STDEV_SUBMITTED_CHRG_AMT,AVERAGE_MEDICARE_PAYMENT_AMT,STDEV_MEDICARE_PAYMENT_AMT -->
-
-  <field name="NPI" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_LAST_ORG_NAME" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_FIRST_NAME" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_MI" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_CREDENTIALS" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_GENDER" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_ENTITY_CODE" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_STREET1" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_STREET2" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_CITY" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_ZIP" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_STATE" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_COUNTRY" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="PROVIDER_TYPE" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="MEDICARE_PARTICIPATION_INDICATOR" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="PLACE_OF_SERVICE" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="HCPCS_CODE" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="HCPCS_DESCRIPTION" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="HCPCS_DRUG_INDICATOR" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="LINE_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="BENE_UNIQUE_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="BENE_DAY_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_MEDICARE_ALLOWED_AMT" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_MEDICARE_ALLOWED_AMT" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_SUBMITTED_CHRG_AMT" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_SUBMITTED_CHRG_AMT" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_MEDICARE_PAYMENT_AMT" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_MEDICARE_PAYMENT_AMT" type="tdouble" indexed="true" stored="true" required="false" multiValued="false" /> 
-
-  <!-- Special bag of words field we will copy to for default search queries (should this be multivalued?)
-  <field name="text" type="text_general" indexed="true" stored="false" multiValued="true" />
-  -->
-
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
@@ -213,18 +173,7 @@
    <copyField source="title" dest="text"/>
    <copyField source="body" dest="text"/>
   -->
-    <!-- Potential copy fields for default query
-    <copyField source="HCPCS_DESCRIPTION" dest="text" />
-    <copyField source="NPPES_PROVIDER_LAST_ORG_NAME" dest="text" />
-    <copyField source="NPPES_CREDENTIALS" dest="text" />
-    <copyField source="NPPES_PROVIDER_STREET1" dest="text" />
-    <copyField source="NPPES_PROVIDER_STREET2" dest="text" />
-    <copyField source="NPPES_PROVIDER_CITY" dest="text" />
-    <copyField source="NPPES_PROVIDER_ZIP" dest="text" />
-    <copyField source="NPPES_PROVIDER_STATE" dest="text" />
-    <copyField source="NPPES_PROVIDER_COUNTRY" dest="text" />
-    -->  
-
+  
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
        attribute and any other attributes determine the real
