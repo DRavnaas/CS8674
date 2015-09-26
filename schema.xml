@@ -194,30 +194,30 @@
   <field name="LINE_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="BENE_UNIQUE_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="BENE_DAY_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_MEDICARE_ALLOWED_AMT" type="currency" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_MEDICARE_ALLOWED_AMT" type="currency" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_SUBMITTED_CHRG_AMT" type="currency" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_SUBMITTED_CHRG_AMT" type="currency" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_MEDICARE_PAYMENT_AMT" type="currency" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_MEDICARE_PAYMENT_AMT" type="currency" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="AVERAGE_MEDICARE_ALLOWED_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="STDEV_MEDICARE_ALLOWED_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="AVERAGE_SUBMITTED_CHRG_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="STDEV_SUBMITTED_CHRG_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="AVERAGE_MEDICARE_PAYMENT_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="STDEV_MEDICARE_PAYMENT_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
 
-  <field name="text" type="text_general" indexed="true" stored="false" required="false" multiValued="true" /> 
+   <!-- catchall field, containing all other searchable text fields (implemented
+        via copyField further on in this schema  -->
+   <field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
-  <!-- Special bag of words field we will copy to for default search queries (should this be multivalued?)
-  <field name="text" type="text_general" indexed="true" stored="false" multiValued="true" />
-  -->
+   <!-- catchall text field that indexes tokens both normally and in reverse for efficient
+        leading wildcard queries. -->
+   <field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>
+
 
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
 
-  <!--
-   <copyField source="title" dest="text"/>
-   <copyField source="body" dest="text"/>
-  -->
-    <!-- Potential copy fields for default query
+    <!-- Text fields to search by default in our catch-all field -->
     <copyField source="HCPCS_DESCRIPTION" dest="text" />
     <copyField source="NPPES_PROVIDER_LAST_ORG_NAME" dest="text" />
+    <copyField source="NPPES_PROVIDER_FIRST_NAME" dest="text" />
     <copyField source="NPPES_CREDENTIALS" dest="text" />
     <copyField source="NPPES_PROVIDER_STREET1" dest="text" />
     <copyField source="NPPES_PROVIDER_STREET2" dest="text" />
@@ -225,7 +225,10 @@
     <copyField source="NPPES_PROVIDER_ZIP" dest="text" />
     <copyField source="NPPES_PROVIDER_STATE" dest="text" />
     <copyField source="NPPES_PROVIDER_COUNTRY" dest="text" />
-    -->  
+    <copyField source="HCPCS_CODE" dest="text" />
+    
+    <!-- Copy the various dollar amounts into currency enabled fields (default USD) -->
+    <copyField source="*_AMT" dest="*_c"/>
 
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
