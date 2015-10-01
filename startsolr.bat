@@ -1,1 +1,4 @@
-bin\solr -e cloud -noprompt
+pushd .
+cd %solr_home%
+call bin\solr -e cloud -noprompt
+popd
