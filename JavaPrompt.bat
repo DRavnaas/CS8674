@@ -3,7 +3,7 @@ rem be sure to mark as admin, solr seems to need that
 
 rem download 64 bit 1.8 java, hadoop, solr, spark, maven, solr-spark - put them in c:\program files
 rem set JAVA_HOME=C:\Progra~1\Java\jdk1.7.0_72
-set JAVA_Home=c:\progra~1\java\jdk1.8.0_60
+set JAVA_Home=c:\progra~1\java\jdk1.8.0_60\jre
 set ANT_HOME=C:\Progra~1\ant\apache-ant-1.9.4
 set SOLR_HOME=c:\OpenSource\solr-5.3.0
 set MAVEN_HOME=c:\OpenSource\apache-maven-3.3.3
