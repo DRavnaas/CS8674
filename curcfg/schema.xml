@@ -187,8 +187,7 @@
   <field name="BENE_UNIQUE_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="BENE_DAY_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
 
-<!-- Note that the name="*" type="ignored" will automatically ignore any other fields.  
-  These are the fields we said we would not store in solr unless we find some good use cases for them
+<!-- 
   <field name="NPPES_PROVIDER_GENDER" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
   <field name="NPPES_PROVIDER_MI" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
   <field name="NPPES_PROVIDER_STREET1" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
