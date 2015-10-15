@@ -1,25 +1,31 @@
 <html>
 <head>
-<title>Spring MVC Tutorial by Crunchify - Hello World Spring MVC
-	Example</title>
-<style type="text/css">
-body {
-	background-image: url('http://crunchify.com/bg.png');
-}
-</style>
+<title>Index - Spring MVC Tutorial Series by Crunchify.com</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
 </head>
-<body>${message}
+<body>
+	<br>
+	<div style="text-align:left">
+		<h2>
+			Results:
+		</h2>
+    ${message}
  
 	<br>
 	<br>
+	
+	
+	
+	<br>
+	<br>
+	</div>
+	<!--  footer -->
 	<div style="font-family: verdana; padding: 10px; border-radius: 10px; font-size: 12px; text-align:center;">
  
-		Spring MCV Tutorial by <a href="http://crunchify.com">Crunchify</a>.
-		Click <a
-			href="http://crunchify.com/category/java-web-development-tutorial/"
-			target="_blank">here</a> for all Java and <a
-			href='http://crunchify.com/category/spring-mvc/' target='_blank'>here</a>
-		for all Spring MVC, Web Development examples.<br>
+		Based on the Spring MVC Tutorial by <a href="http://crunchify.com">Crunchify</a>.
+		
 	</div>
 </body>
 </html>

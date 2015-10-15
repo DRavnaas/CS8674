@@ -116,9 +116,6 @@
        EXAMPLE:  name="*_i" will match any field ending in _i (like myid_i, z_i)
        RESTRICTION: the glob-like pattern in the name attribute must have
        a "*" only at the start or the end.  -->
-
-   <!-- DoyleRav: Could comment dynamicField with name="*... out.  They could be useful, and don't hurt anything if we don't use them 
-        Will keep enabled for now - just need to be sure our field names don't conflict with these naming conventions. -->
    
    <dynamicField name="*_i"  type="int"    indexed="true"  stored="true"/>
    <dynamicField name="*_is" type="int"    indexed="true"  stored="true"  multiValued="true"/>
@@ -161,7 +158,7 @@
         field name or dynamic field, rather than reporting them as an error. 
         alternately, change the type="ignored" to some other type e.g. "text" if you want 
         unknown fields indexed and/or stored by default --> 
-   <!--dynamicField name="*" type="ignored" multiValued="true" /-->
+   <dynamicField name="*" type="ignored" multiValued="true" />
 
  <!-- Field to use to determine and enforce document uniqueness. 
       Unless this field is marked with required="false", it will be a required field
@@ -170,36 +167,41 @@
 
   <!-- DoyleRav: Define our fields for the medicare columns
        Note that id is defined above (and is a special field) -->
-  <!-- NPI,NPPES_PROVIDER_LAST_ORG_NAME,NPPES_PROVIDER_FIRST_NAME,NPPES_PROVIDER_MI,NPPES_CREDENTIALS,NPPES_PROVIDER_GENDER,NPPES_ENTITY_CODE,NPPES_PROVIDER_STREET1,NPPES_PROVIDER_STREET2,NPPES_PROVIDER_CITY,NPPES_PROVIDER_ZIP,NPPES_PROVIDER_STATE,NPPES_PROVIDER_COUNTRY,PROVIDER_TYPE,MEDICARE_PARTICIPATION_INDICATOR,PLACE_OF_SERVICE,HCPCS_CODE,HCPCS_DESCRIPTION,HCPCS_DRUG_INDICATOR,LINE_SRVC_CNT,BENE_UNIQUE_CNT,BENE_DAY_SRVC_CNT,AVERAGE_MEDICARE_ALLOWED_AMT,STDEV_MEDICARE_ALLOWED_AMT,AVERAGE_SUBMITTED_CHRG_AMT,STDEV_SUBMITTED_CHRG_AMT,AVERAGE_MEDICARE_PAYMENT_AMT,STDEV_MEDICARE_PAYMENT_AMT -->
+  <!-- Potential fields are: NPI,NPPES_PROVIDER_LAST_ORG_NAME,NPPES_PROVIDER_FIRST_NAME,NPPES_PROVIDER_MI,NPPES_CREDENTIALS,NPPES_PROVIDER_GENDER,NPPES_ENTITY_CODE,NPPES_PROVIDER_STREET1,NPPES_PROVIDER_STREET2,NPPES_PROVIDER_CITY,NPPES_PROVIDER_ZIP,NPPES_PROVIDER_STATE,NPPES_PROVIDER_COUNTRY,PROVIDER_TYPE,MEDICARE_PARTICIPATION_INDICATOR,PLACE_OF_SERVICE,HCPCS_CODE,HCPCS_DESCRIPTION,HCPCS_DRUG_INDICATOR,LINE_SRVC_CNT,BENE_UNIQUE_CNT,BENE_DAY_SRVC_CNT,AVERAGE_MEDICARE_ALLOWED_AMT,STDEV_MEDICARE_ALLOWED_AMT,AVERAGE_SUBMITTED_CHRG_AMT,STDEV_SUBMITTED_CHRG_AMT,AVERAGE_MEDICARE_PAYMENT_AMT,STDEV_MEDICARE_PAYMENT_AMT -->
 
+  <field name="YEAR" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPI" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_LAST_ORG_NAME" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_FIRST_NAME" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_MI" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_CREDENTIALS" type="text_en" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_GENDER" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_PROVIDER_LAST_ORG_NAME" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_PROVIDER_FIRST_NAME" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_CREDENTIALS" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="NPPES_ENTITY_CODE" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_STREET1" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_STREET2" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_CITY" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_ZIP" type="string" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_STATE" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="NPPES_PROVIDER_COUNTRY" type="text_general" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_PROVIDER_CITY" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_PROVIDER_ZIP" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_PROVIDER_STATE" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
+  <field name="NPPES_PROVIDER_COUNTRY" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="PROVIDER_TYPE" type="text_en" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="MEDICARE_PARTICIPATION_INDICATOR" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="PLACE_OF_SERVICE" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="HCPCS_CODE" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="HCPCS_DESCRIPTION" type="text_en" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="HCPCS_DRUG_INDICATOR" type="lowercase" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="LINE_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="BENE_UNIQUE_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="BENE_DAY_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_MEDICARE_ALLOWED_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_MEDICARE_ALLOWED_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_SUBMITTED_CHRG_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_SUBMITTED_CHRG_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="AVERAGE_MEDICARE_PAYMENT_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
-  <field name="STDEV_MEDICARE_PAYMENT_AMT" type="float" indexed="true" stored="true" required="false" multiValued="false" /> 
+
+<!-- Note that the name="*" type="ignored" will automatically ignore any other fields.  
+  These are the fields we said we would not store in solr unless we find some good use cases for them
+  <field name="NPPES_PROVIDER_GENDER" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="NPPES_PROVIDER_MI" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="NPPES_PROVIDER_STREET1" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="NPPES_PROVIDER_STREET2" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="MEDICARE_PARTICIPATION_INDICATOR" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="HCPCS_DRUG_INDICATOR" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="AVERAGE_MEDICARE_ALLOWED_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="STDEV_MEDICARE_ALLOWED_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="AVERAGE_SUBMITTED_CHRG_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="STDEV_SUBMITTED_CHRG_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="AVERAGE_MEDICARE_PAYMENT_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+  <field name="STDEV_MEDICARE_PAYMENT_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+-->
 
    <!-- catchall field, containing all other searchable text fields (implemented
         via copyField further on in this schema  -->
@@ -208,7 +210,7 @@
    <!-- catchall text field that indexes tokens both normally and in reverse for efficient
         leading wildcard queries. -->
    <field name="text_rev" type="text_general_rev" indexed="true" stored="false" multiValued="true"/>
-
+   -->
 
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
@@ -217,14 +219,11 @@
     <!-- Text fields to search by default in our catch-all field -->
     <copyField source="HCPCS_DESCRIPTION" dest="text" />
     <copyField source="NPPES_PROVIDER_LAST_ORG_NAME" dest="text" />
-    <copyField source="NPPES_PROVIDER_FIRST_NAME" dest="text" />
-    <copyField source="NPPES_CREDENTIALS" dest="text" />
-    <copyField source="NPPES_PROVIDER_STREET1" dest="text" />
-    <copyField source="NPPES_PROVIDER_STREET2" dest="text" />
     <copyField source="NPPES_PROVIDER_CITY" dest="text" />
     <copyField source="NPPES_PROVIDER_ZIP" dest="text" />
     <copyField source="NPPES_PROVIDER_STATE" dest="text" />
     <copyField source="NPPES_PROVIDER_COUNTRY" dest="text" />
+    <copyField source="NPPES_CREDENTIALS" dest="text" />
     <copyField source="HCPCS_CODE" dest="text" />
     
     <!-- Copy the various dollar amounts into currency enabled fields (default USD) -->
@@ -540,6 +539,19 @@
       </analyzer>
     </fieldType>
 
+    <!-- lowercases the entire field value, keeping it as a single token.  
+    <fieldType name="lowercase_cred" class="solr.TextField" positionIncrementGap="100">
+      <analyzer type="index">
+        <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory" />
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms_cred.txt" ignoreCase="true" expand="false"/>
+      </analyzer>
+      <analyzer type="query">
+        <filter class="solr.SynonymFilterFactory" synonyms="synonyms_cred.txt" ignoreCase="true" expand="false"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+      </analyzer>
+    </fieldType>
+-->
     <!-- since fields of this type are by default not stored or indexed,
          any data added to them will be ignored outright.  --> 
     <fieldType name="ignored" stored="false" indexed="false" multiValued="true" class="solr.StrField" />
