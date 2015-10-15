@@ -187,7 +187,8 @@
   <field name="BENE_UNIQUE_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
   <field name="BENE_DAY_SRVC_CNT" type="tlong" indexed="true" stored="true" required="false" multiValued="false" /> 
 
-<!-- 
+<!-- We have chosen (for now) to not index these fields.  
+     The field definition above (.. dynamicField name="*" type="ignored" ...) ensures they are ignored 
   <field name="NPPES_PROVIDER_GENDER" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
   <field name="NPPES_PROVIDER_MI" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
   <field name="NPPES_PROVIDER_STREET1" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
@@ -200,6 +201,10 @@
   <field name="STDEV_SUBMITTED_CHRG_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
   <field name="AVERAGE_MEDICARE_PAYMENT_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
   <field name="STDEV_MEDICARE_PAYMENT_AMT" type="ignored" indexed="false" stored="false" required="false" multivalued="false" />
+
+    Copy the various dollar amounts into currency enabled fields (default USD)
+    <copyField source="*_AMT" dest="*_c"/>
+
 -->
 
    <!-- catchall field, containing all other searchable text fields (implemented
@@ -225,9 +230,6 @@
     <copyField source="NPPES_CREDENTIALS" dest="text" />
     <copyField source="HCPCS_CODE" dest="text" />
     
-    <!-- Copy the various dollar amounts into currency enabled fields (default USD) -->
-    <copyField source="*_AMT" dest="*_c"/>
-
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
        attribute and any other attributes determine the real
