@@ -21,14 +21,45 @@ public class SolrQueryResponse {
   public ResponseBody response;
   
   
-  static String jsonResponse = "{ \"responseHeader\":{" +
+  static String jsonNoResultResponse = "{ \"responseHeader\":{" +
       "\"status\":0," +
       "\"QTime\":16," +
       "\"params\":{" +
       "\"q\":\"inpatient\"," +
       "\"indent\":\"true\"," +
       "\"wt\":\"json\"} }," +
-      "\"response\":{\"numFound\":19,\"start\":0,\"maxScore\":0.7061373,\"docs\":null} }";
+      "\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]} }";
+  
+  static String jsonResultsResponse = "{ \"responseHeader\":{" +
+      "\"status\":0," +
+      "\"QTime\":16," +
+      "\"params\":{" +
+      "\"q\":\"inpatient\"," +
+      "\"indent\":\"true\"," +
+      "\"wt\":\"json\"} }," +
+      "\"response\":{\"numFound\":1,\"start\":0,\"docs\":[" +
+      "{" +
+        "\"id\": \"1003006115IO735622012\"," +
+        "\"year\": 2012," +
+        "\"NPI\": \"1003006115\"," +
+        "\"NPPES_PROVIDER_LAST_ORG_NAME\": \"DURHAM\"," +
+        "\"NPPES_PROVIDER_FIRST_NAME\": \"BENJAMIN\"," +
+        "\"NPPES_CREDENTIALS\": \"PA-C\"," +
+        "\"NPPES_ENTITY_CODE\": \"I\"," +
+        "\"NPPES_PROVIDER_CITY\": \"COLUMBUS\"," +
+        "\"NPPES_PROVIDER_ZIP\": \"319046802\"," +
+        "\"NPPES_PROVIDER_STATE\": \"GA\"," +
+        "\"NPPES_PROVIDER_COUNTRY\": \"US\"," +
+        "\"PROVIDER_TYPE\": \"Physician Assistant\"," +
+        "\"PLACE_OF_SERVICE\": \"O\"," +
+        "\"HCPCS_CODE\": \"73562\"," +
+        "\"HCPCS_DESCRIPTION\": \"X-ray of knee, 3 views\"," +
+        "\"LINE_SRVC_CNT\": 39," +
+        "\"BENE_UNIQUE_CNT\": 36," +
+        "\"BENE_DAY_SRVC_CNT\": 37," +
+        "\"_version_\": 1515338585533841400" +
+        "}" +      
+      "]} }";
   
       
 
@@ -49,8 +80,13 @@ public class SolrQueryResponse {
     
     SolrQueryResponse response = mapper.readValue(testJson, SolrQueryResponse.class);
 
-    response = mapper.readValue(jsonResponse, SolrQueryResponse.class);
+    response = mapper.readValue(jsonNoResultResponse, SolrQueryResponse.class);
+
+    response = mapper.readValue(jsonResultsResponse, SolrQueryResponse.class);
     
+    testJson = mapper.writeValueAsString(response);
+    System.out.println(mapper.writeValueAsString(response));
+        
     System.out.println("done!");
 
     }
