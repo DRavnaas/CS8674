@@ -7,6 +7,6 @@ public class ResponseBody {
   public int start;
   public double maxScore;
   
-  public String[] docs;
+  public ProviderInfo[] docs;
 
 }

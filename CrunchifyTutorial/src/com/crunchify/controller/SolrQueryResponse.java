@@ -2,6 +2,13 @@ package com.crunchify.controller;
 
 import java.io.IOException;
 
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocumentList;
+import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -11,12 +18,10 @@ public class SolrQueryResponse {
  
   //public int age = 29;
   //public String name = "whatever";
-
-  
  
   
   
-  public ResponseHeader responseHeader;
+  public com.crunchify.controller.ResponseHeaderX responseHeader;
   
   public ResponseBody response;
   
@@ -61,38 +66,98 @@ public class SolrQueryResponse {
         "}" +      
       "]} }";
   
-      
+  public SolrQueryResponse()
+  {
+    
+  }
 
+  public String toJson() throws JsonGenerationException, IOException
+  {
+    ObjectMapper mapper = new ObjectMapper();    
+
+    return mapper.writeValueAsString(this);      
+
+  }
+  public SolrQueryResponse(String json) throws JsonParseException, JsonMappingException, IOException
+  {
+    ObjectMapper mapper = new ObjectMapper();
+    
+    SolrQueryResponse parsedResponse = mapper.readValue(json, SolrQueryResponse.class);
+    this.responseHeader = parsedResponse.responseHeader;    
+    this.response = parsedResponse.response;
+
+  }
   
-  public static void main(String[] args) 
+  public static void main(String[] args) throws IOException 
   {
     System.out.println("testing...");
     
+    SolrClient solr = null;
+    
     try {
-    ObjectMapper mapper = new ObjectMapper();
-    
-    SolrQueryResponse testResponse = new SolrQueryResponse();
-    testResponse.responseHeader = new ResponseHeader();
-    testResponse.responseHeader.QTime = 3;
-    
-    System.out.println(mapper.writeValueAsString(testResponse));
-    String testJson = mapper.writeValueAsString(testResponse);
-    
-    SolrQueryResponse response = mapper.readValue(testJson, SolrQueryResponse.class);
+      //ObjectMapper mapper = new ObjectMapper();
+      
+      SolrQueryResponse testResponse = new SolrQueryResponse();
+      testResponse.responseHeader = new ResponseHeaderX();
+      testResponse.responseHeader.QTime = 3;
+      
+      System.out.println(testResponse.toJson());
+       
+      SolrQueryResponse response = new SolrQueryResponse(testResponse.toJson());
+  
+      response = new SolrQueryResponse(jsonNoResultResponse);
+  
+      response = new SolrQueryResponse(jsonResultsResponse);
+      
+      String testJson = response.toJson();
+      System.out.println(testJson);
+          
+      String queryJson = CrunchifyHelloWorld.GetSolrResponse("http://localhost:8983/solr/csvtest/select?wt=json&indent=true&q=knee&rows=10");
+      response = new SolrQueryResponse(queryJson);
+      
+      System.out.println("done - numResponse = " + response.response.numFound + "!");
 
-    response = mapper.readValue(jsonNoResultResponse, SolrQueryResponse.class);
-
-    response = mapper.readValue(jsonResultsResponse, SolrQueryResponse.class);
-    
-    testJson = mapper.writeValueAsString(response);
-    System.out.println(mapper.writeValueAsString(response));
-        
-    System.out.println("done!");
-
+      // Try SolrJ
+      // - add to maven pom.xml
+      // - add imports
+      // - know what your zookeeper names/ports are...
+      
+      //String zkHostString = "localhost:9983/solr";
+      //solr = new CloudSolrClient(zkHostString);
+      // set default collection?
+      
+      solr = new HttpSolrClient("http://localhost:8983/solr/csvtest");      
+      
+      SolrQuery query = new SolrQuery();
+      //query.setQuery(mQueryString);
+      
+      query.set("rows", "10");
+      //query.setFields("category", "title", "price");
+      query.set("q", "knee");
+      
+      QueryResponse solrJresponse = solr.query(query);
+      
+      SolrDocumentList list = solrJresponse.getResults();
+      
+      System.out.println("Query returned " + list.size() + " results out of " + list.getNumFound());
+      
+      if (list.getNumFound() > 0)
+      {
+        if (list.size() > 0)
+        {
+          
+        }
+      }
     }
     catch (Exception e)
     {
       e.printStackTrace();
+    }
+    finally {
+      if (solr != null)
+      {
+        solr.close();
+      }
     }
     
   }
