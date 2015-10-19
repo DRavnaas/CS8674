@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -28,104 +30,138 @@ import java.util.Map;
 @Controller
 public class CrunchifyHelloWorld {
  
-  static boolean useSolrJ = true;
+  static boolean useSolrJ = true;  // I was using this to toggle between implementations
   
   @RequestMapping(value="/welcome", method=RequestMethod.GET)
   public ModelAndView helloWorld(
-                                 @RequestParam(value="query", required=false)String queryTerm) throws IOException {
+                                 @RequestParam(value="query", required=true)String queryTerm) throws Exception {
  
     String solrQueryUrl = "http://localhost:8983/solr/";
-
-    String status = QuerySolrUrl(solrQueryUrl, queryTerm);
+    String message = "";
     
-    String message = status;
+    if (queryTerm == null || queryTerm.equalsIgnoreCase(""))
+    {
+        message = "A query term is required.";
+    }
+    else {
+      String solrFormattedMsg = "Querying " + solrQueryUrl + "...<br><br>";
+
+      SolrQueryResponse response = QuerySolrUrl(solrQueryUrl, queryTerm);
+
+      solrFormattedMsg = solrFormattedMsg + "Solr response:  ";        
+      
+      if (response.responseHeader.status == 0)
+      {
+        solrFormattedMsg = solrFormattedMsg + "<b>Solr response = ok.</b>";
+        
+        // Build a table of providers:
+        String providerList = "";
+        for (ProviderInfo pi : response.response.docs)
+        {
+          providerList = providerList.concat("<li>");
+
+          // First name, last name, type, city, state, hcpcs description
+
+          providerList = providerList.concat(pi.NPPES_PROVIDER_LAST_ORG_NAME);
+          if (!pi.NPPES_PROVIDER_FIRST_NAME.isEmpty())
+          {
+            providerList = providerList.concat(", " + pi.NPPES_PROVIDER_FIRST_NAME);
+          }
+          providerList = providerList.concat(", " + pi.PROVIDER_TYPE);
+          providerList = providerList.concat(", " + pi.NPPES_PROVIDER_CITY);
+          providerList = providerList.concat(", " + pi.NPPES_PROVIDER_STATE);
+          providerList = providerList.concat(", " + pi.HCPCS_DESCRIPTION);
+          
+          providerList = providerList.concat("</li>");                   
+        }
+        
+        if (response.response.numFound > 0)
+        {
+          solrFormattedMsg = solrFormattedMsg + "<br />Found " + response.response.numFound +
+                           " providers for query; first " + response.response.docs.size() + " are...<br />";
+          solrFormattedMsg = solrFormattedMsg + "<ul>" + providerList + "</ul>";        
+
+        }
+        else {
+          solrFormattedMsg = solrFormattedMsg + "<br />Query for " + queryTerm + " returned 0 results<br />";
+        }
+      }
+      else {
+        solrFormattedMsg = solrFormattedMsg + "<b>Solr response not ok = " + response.responseHeader.status + "</b>";
+       
+      }
+      
+      message = solrFormattedMsg;
+    }
+    
     return new ModelAndView("welcome", "message", message);
   }
   
   
-  public String QuerySolrUrl(String solrUrlBase, String queryTerm) throws IOException
+  public SolrQueryResponse QuerySolrUrl(String solrUrlBase, String queryTerm) throws Exception
   {
     String solrQueryUrl = solrUrlBase;
-    
-    if (queryTerm == null || queryTerm.length() == 0)
-    {
-      solrQueryUrl = solrQueryUrl + "admin/collections?action=CLUSTERSTATUS&wt=json&indent=true";
-    }
-    else if (!useSolrJ){     
-      solrQueryUrl = solrQueryUrl + "csvtest/select?wt=json&indent=true&q=" + queryTerm;
-    }
-    
-    String solrStatus = "Querying " + solrQueryUrl + "...<br><br>";
-    String rawResponse = "";
+    SolrQueryResponse response = null;        
+    int numRows = 10;
+   
     SolrClient solr = null;
     
     try {
 
       if (!useSolrJ)
       {
-        // Use Jackson JSON parsing...
-        rawResponse = GetSolrResponse(solrQueryUrl);
-        SolrQueryResponse response = new SolrQueryResponse(rawResponse);
- 
-        solrStatus = solrStatus + "Solr response:  ";        
-      
-        if (response.responseHeader.status == 0)
-        {
-           solrStatus = solrStatus + "<b>Solr response = ok.</b>";
-        }
+        // note that some work is needed to get this path working again,
+        // the response objects migrated a bit for solrJ
+        
+        // Use built http request + json parsing into java objects.
+        solrQueryUrl = solrQueryUrl + "csvtest/select?wt=json&indent=true&q=" + queryTerm
+            + "&rows=" + numRows + "&start=0";
+
+        String rawResponse = GetSolrResponse(solrQueryUrl);
+        response = new SolrQueryResponse(rawResponse);       
+        
       }
       else {
         // Use SolrJ
-        solr = new HttpSolrClient("http://localhost:8983/solr/csvtest");      
+        solr = new HttpSolrClient(solrUrlBase + "csvtest");      
         
         SolrQuery query = new SolrQuery();
         
-        query.set("rows", "10");
-        query.set("q", "knee");
+        query.set("rows", numRows);
+        query.set("q", queryTerm);
         query.setStart(0);
         
         QueryResponse solrJresponse = solr.query(query);
         
-        SolrDocumentList list = solrJresponse.getResults(); 
+        SolrDocumentList list = solrJresponse.getResults();
+        
+        // Hydrate our object from the SolrJ results (maybe this could be a constructor)
+        response = new SolrQueryResponse();
+        response.responseHeader.status = solrJresponse.getStatus();
+        response.responseHeader.QTime = solrJresponse.getQTime();
+        response.response.start = list.getStart();
+        response.response.maxScore = list.getMaxScore();
+        response.response.numFound = list.getNumFound();
+        
         for (int i=0; i<list.size(); i++)
         {
           SolrDocument doc = list.get(i);
           System.out.println("Query result " + i + ": id = " + doc.getFieldValue("id").toString());
-          Map<String,Object> fields = doc.getFieldValueMap();
-          for (String key : fields.keySet())
-          {
-            Object value = fields.get(key);
-            if (value != null)
-            {
-              System.out.println("    Field " + key + " = " + value);
-            }   
-          }   
-        }
+
+          response.response.docs.add(new ProviderInfo(doc.getFieldValueMap()));         
+          
+        }      
+
       }
-    }
-    catch (Exception e) {
-
-      solrStatus = solrStatus + "<b>Error querying Solr.</b>";
-      rawResponse = e.toString();
-
-    }
+    }    
     finally {
       if (solr != null)
       {
         solr.close();
       }
     }
-
-    if (rawResponse.length() > 0)
-    {
-      int endIndex = rawResponse.length();
-      if (endIndex > 2000)
-      {
-        rawResponse = rawResponse.substring(0, 2000) + "...";        
-      }
-      solrStatus = solrStatus + "<br><div>" + rawResponse + "</div>";
-    }
-    return solrStatus;
+    
+    return response;
         
    }
   

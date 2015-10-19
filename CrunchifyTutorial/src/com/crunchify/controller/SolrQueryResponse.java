@@ -68,16 +68,10 @@ public class SolrQueryResponse {
   
   public SolrQueryResponse()
   {
-    
+    this.responseHeader = new ResponseHeaderX();
+    this.response = new ResponseBody();    
   }
 
-  public String toJson() throws JsonGenerationException, IOException
-  {
-    ObjectMapper mapper = new ObjectMapper();    
-
-    return mapper.writeValueAsString(this);      
-
-  }
   public SolrQueryResponse(String json) throws JsonParseException, JsonMappingException, IOException
   {
     ObjectMapper mapper = new ObjectMapper();
@@ -85,6 +79,14 @@ public class SolrQueryResponse {
     SolrQueryResponse parsedResponse = mapper.readValue(json, SolrQueryResponse.class);
     this.responseHeader = parsedResponse.responseHeader;    
     this.response = parsedResponse.response;
+
+  }
+  
+  public String toJson() throws JsonGenerationException, IOException
+  {
+    ObjectMapper mapper = new ObjectMapper();    
+
+    return mapper.writeValueAsString(this);      
 
   }
   
@@ -98,7 +100,6 @@ public class SolrQueryResponse {
       //ObjectMapper mapper = new ObjectMapper();
       
       SolrQueryResponse testResponse = new SolrQueryResponse();
-      testResponse.responseHeader = new ResponseHeaderX();
       testResponse.responseHeader.QTime = 3;
       
       System.out.println(testResponse.toJson());

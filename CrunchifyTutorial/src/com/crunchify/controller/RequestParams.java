@@ -4,7 +4,8 @@ public class RequestParams {
   public String q;
   public boolean indent;
   public String wt;
-  public int rows;
+  public String rows;
   public String sort;  
+  public String start;
 }
 

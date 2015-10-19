@@ -14,11 +14,12 @@
 		<h3>(from Crunchify blog quick start)</h3>
 
 	<ul>
-	<li><a href="welcome.html">Click here</a> to
+	<!--  <li><a href="welcome.html">Click here</a> to
 			call the Spring MVC Controller that checks the Solr cluster status</li>
+			-->
 	<li>
 	<form action="welcome.html" method="GET">
-     ...or enter a string to query the index and press "submit":  <input type="text" name="query">
+     Enter a string to query the index and press "submit":  <input type="text" name="query">
     <br>
     <input type="submit" value="Submit">
     </form>
