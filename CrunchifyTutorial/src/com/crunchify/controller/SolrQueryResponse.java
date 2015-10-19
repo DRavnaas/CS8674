@@ -7,6 +7,7 @@ import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
+import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
@@ -97,8 +98,8 @@ public class SolrQueryResponse {
     SolrClient solr = null;
     
     try {
-      //ObjectMapper mapper = new ObjectMapper();
-      
+
+      // Examples using json parsing of results
       SolrQueryResponse testResponse = new SolrQueryResponse();
       testResponse.responseHeader.QTime = 3;
       
@@ -108,15 +109,22 @@ public class SolrQueryResponse {
   
       response = new SolrQueryResponse(jsonNoResultResponse);
   
-      response = new SolrQueryResponse(jsonResultsResponse);
+      if (false)
+      {
+        // This did work, but I had to tweak the classes for SolrJ
+        // (so any new SolrQueryResponse with json that has doc results fails)
+        response = new SolrQueryResponse(jsonResultsResponse);
       
-      String testJson = response.toJson();
-      System.out.println(testJson);
+        String testJson = response.toJson();
+        System.out.println(testJson);
           
-      String queryJson = CrunchifyHelloWorld.GetSolrResponse("http://localhost:8983/solr/csvtest/select?wt=json&indent=true&q=knee&rows=10");
-      response = new SolrQueryResponse(queryJson);
+        String queryJson = CrunchifyHelloWorld.GetSolrResponse("http://localhost:8983/solr/csvtest/select?wt=json&indent=true&q=knee&rows=10");
+        response = new SolrQueryResponse(queryJson);
       
-      System.out.println("done - numResponse = " + response.response.numFound + "!");
+        System.out.println("done - numResponse = " + response.response.numFound + "!");
+      }
+      
+      // Using SolrJ to parse results.
 
       // Try SolrJ
       // - add to maven pom.xml
@@ -133,7 +141,6 @@ public class SolrQueryResponse {
       //query.setQuery(mQueryString);
       
       query.set("rows", "10");
-      //query.setFields("category", "title", "price");
       query.set("q", "knee");
       
       QueryResponse solrJresponse = solr.query(query);
@@ -146,7 +153,10 @@ public class SolrQueryResponse {
       {
         if (list.size() > 0)
         {
-          
+          for (SolrDocument doc : list)
+          {
+            System.out.println("Query result id = " + doc.getFieldValue("id").toString());
+          }          
         }
       }
     }
