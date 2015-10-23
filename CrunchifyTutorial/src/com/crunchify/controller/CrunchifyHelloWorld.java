@@ -43,7 +43,7 @@ public class CrunchifyHelloWorld {
         
         // Build a table of providers:
         String providerList = "";
-        for (Provider pi : response.body.docs)
+        for (Provider pi : response.body.providers)
         {
           providerList = providerList.concat("<li>");
 
@@ -65,7 +65,7 @@ public class CrunchifyHelloWorld {
         if (response.body.numFound > 0)
         {
           solrFormattedMsg = solrFormattedMsg + "<br />Found " + response.body.numFound +
-                           " providers for query; first " + response.body.docs.size() + " are...<br />";
+                           " providers for query; first " + response.body.providers.size() + " are...<br />";
           solrFormattedMsg = solrFormattedMsg + "<ul>" + providerList + "</ul>";        
 
         }
@@ -88,16 +88,9 @@ public class CrunchifyHelloWorld {
   public SolrQueryResponse QuerySolrUrl(String solrUrlBase, String queryTerm) throws Exception
   {
     SolrQueryResponse response = null;        
-    int numRows = 10;      
-    
+    int numRows = 10;          
       
-    // Hydrate our object from the SolrJ results (maybe this could be a constructor)
-    List<Provider> hits = SolrQueryResponse.getProviders(numRows, queryTerm);
-        
-    for (Provider p : hits)
-    {
-       System.out.println("Query result : id = " + p.id);         
-    } 
+    response = SolrQueryResponse.getQueryResponse(numRows, queryTerm);
     
     return response;
         

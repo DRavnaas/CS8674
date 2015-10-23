@@ -51,11 +51,11 @@ public class SolrQueryResponse {
     public long start;
     public double maxScore;
     
-    public List<Provider> docs;
+    public List<Provider> providers;
      
     public ResponseBody()
     {
-      this.docs = new ArrayList<Provider>();
+      this.providers = new ArrayList<Provider>();
     }
   }
   
@@ -73,6 +73,9 @@ public class SolrQueryResponse {
   {   
     SolrDocumentList list = solrJresponse.getResults();
     
+    this.header = new ResponseHeader();
+    this.body = new ResponseBody();    
+ 
     // Hydrate our object from the SolrJ results (maybe this could be a constructor)
     
     this.header.status = solrJresponse.getStatus();
@@ -84,7 +87,7 @@ public class SolrQueryResponse {
     for (int i=0; i<list.size(); i++)
     {
       SolrDocument doc = list.get(i);
-      this.body.docs.add(new Provider(doc.getFieldValueMap()));       
+      this.body.providers.add(new Provider(doc.getFieldValueMap()));       
     }   
   }
  
@@ -165,6 +168,52 @@ public class SolrQueryResponse {
     }
     
     return providers;
+  }
+  
+  public static SolrQueryResponse getQueryResponse(int numRows, String queryTerm) throws IOException
+  {
+    SolrQueryResponse response = null;
+    SolrClient solr = null;
+    
+    try {
+      
+      solr = new HttpSolrClient(solrQueryBase);      
+      
+      SolrQuery query = new SolrQuery();
+      
+      query.set("rows", numRows);
+      query.set("q", queryTerm);
+      
+      QueryResponse solrJresponse = solr.query(query);
+      response = new SolrQueryResponse(solrJresponse);
+      
+      List<Provider> list = response.body.providers;
+      
+      System.out.println("Query returned " + list.size() + " results out of " + response.body.numFound);
+      
+      if (response.body.numFound > 0)
+      {
+        if (list.size() > 0)
+        {
+          for (Provider p : list)
+          {
+            System.out.println("Query result id = " + p.id);
+          }          
+        }
+      }
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+    }
+    finally {
+      if (solr != null)
+      {
+        solr.close();
+      }
+    }
+        
+    return response;
   }
   
   public static void main(String[] args) throws IOException 
