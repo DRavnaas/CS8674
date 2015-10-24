@@ -1,94 +1,170 @@
 package com.crunchify.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
-import org.apache.solr.client.solrj.impl.CloudSolrClient;
+import org.apache.solr.client.solrj.SolrServerException;
+//import org.apache.solr.client.solrj.impl.CloudSolrClient;
 import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 
 public class SolrQueryResponse {
  
-  //public int age = 29;
-  //public String name = "whatever";
+  // ToDo: get this from config instead?
+  public static String solrUrlBase = "http://localhost:8983/solr/";
+  public static String collectionName = "csvtest";
+  public static String solrQueryBase = solrUrlBase + collectionName;
+
+  public enum SortField {
+    DAY_COUNT
+  }
+  
+  // Define a few nested classes specific to the query response
+  // I expect these to be mostly used internally to solr queries.
+  public class RequestParams {
+    public String q;
+    public boolean indent;
+    public String wt;
+    public String rows;
+    public String sort;  
+    public String start;
+  } 
+
+  public class ResponseHeader {
+    
+    public int status;
+    public int QTime;
+    
+    public RequestParams params;  
+  }
+  
+  public class ResponseBody {
+    //"\"response\":{\"numFound\":19,\"start\":0,\"maxScore\":0.7061373,\"docs:\"[]}}";
+
+    public long numFound;
+    public long start;
+    public double maxScore;
+    
+    public List<Provider> docs;
+     
+    public ResponseBody()
+    {
+      this.docs = new ArrayList<Provider>();
+    }
+  }
+  
+  public ResponseHeader header;
+  
+  public ResponseBody body; 
  
-  
-  
-  public com.crunchify.controller.ResponseHeaderX responseHeader;
-  
-  public ResponseBody response;
-  
-  
-  static String jsonNoResultResponse = "{ \"responseHeader\":{" +
-      "\"status\":0," +
-      "\"QTime\":16," +
-      "\"params\":{" +
-      "\"q\":\"inpatient\"," +
-      "\"indent\":\"true\"," +
-      "\"wt\":\"json\"} }," +
-      "\"response\":{\"numFound\":0,\"start\":0,\"docs\":[]} }";
-  
-  static String jsonResultsResponse = "{ \"responseHeader\":{" +
-      "\"status\":0," +
-      "\"QTime\":16," +
-      "\"params\":{" +
-      "\"q\":\"inpatient\"," +
-      "\"indent\":\"true\"," +
-      "\"wt\":\"json\"} }," +
-      "\"response\":{\"numFound\":1,\"start\":0,\"docs\":[" +
-      "{" +
-        "\"id\": \"1003006115IO735622012\"," +
-        "\"year\": 2012," +
-        "\"NPI\": \"1003006115\"," +
-        "\"NPPES_PROVIDER_LAST_ORG_NAME\": \"DURHAM\"," +
-        "\"NPPES_PROVIDER_FIRST_NAME\": \"BENJAMIN\"," +
-        "\"NPPES_CREDENTIALS\": \"PA-C\"," +
-        "\"NPPES_ENTITY_CODE\": \"I\"," +
-        "\"NPPES_PROVIDER_CITY\": \"COLUMBUS\"," +
-        "\"NPPES_PROVIDER_ZIP\": \"319046802\"," +
-        "\"NPPES_PROVIDER_STATE\": \"GA\"," +
-        "\"NPPES_PROVIDER_COUNTRY\": \"US\"," +
-        "\"PROVIDER_TYPE\": \"Physician Assistant\"," +
-        "\"PLACE_OF_SERVICE\": \"O\"," +
-        "\"HCPCS_CODE\": \"73562\"," +
-        "\"HCPCS_DESCRIPTION\": \"X-ray of knee, 3 views\"," +
-        "\"LINE_SRVC_CNT\": 39," +
-        "\"BENE_UNIQUE_CNT\": 36," +
-        "\"BENE_DAY_SRVC_CNT\": 37," +
-        "\"_version_\": 1515338585533841400" +
-        "}" +      
-      "]} }";
-  
   public SolrQueryResponse()
   {
-    this.responseHeader = new ResponseHeaderX();
-    this.response = new ResponseBody();    
-  }
-
-  public SolrQueryResponse(String json) throws JsonParseException, JsonMappingException, IOException
-  {
-    ObjectMapper mapper = new ObjectMapper();
-    
-    SolrQueryResponse parsedResponse = mapper.readValue(json, SolrQueryResponse.class);
-    this.responseHeader = parsedResponse.responseHeader;    
-    this.response = parsedResponse.response;
-
+    this.header = new ResponseHeader();
+    this.body = new ResponseBody();    
   }
   
-  public String toJson() throws JsonGenerationException, IOException
+  public SolrQueryResponse(QueryResponse solrJresponse)
+  {   
+    SolrDocumentList list = solrJresponse.getResults();
+    
+    // Hydrate our object from the SolrJ results (maybe this could be a constructor)
+    
+    this.header.status = solrJresponse.getStatus();
+    this.header.QTime = solrJresponse.getQTime();
+    this.body.start = list.getStart();
+    this.body.maxScore = list.getMaxScore();
+    this.body.numFound = list.getNumFound(); 
+    
+    for (int i=0; i<list.size(); i++)
+    {
+      SolrDocument doc = list.get(i);
+      this.body.docs.add(new Provider(doc.getFieldValueMap()));       
+    }   
+  }
+ 
+  public static List<String> getStates(int numRows) throws IOException, SolrServerException
   {
-    ObjectMapper mapper = new ObjectMapper();    
+    List<String> states = new ArrayList<String>();
+    
+    SolrClient solr = null;
+    
+    // Todo: refactor the internal query to one method
+    try {    
+      solr = new HttpSolrClient(solrQueryBase);      
+      
+      SolrQuery query = new SolrQuery();
+      
+      query.set("rows", numRows);
+      query.set("q", "NPPES_PROVIDER_STATE:*");
+      // set fl or group by?
+      query.setStart(0);
+      
+      QueryResponse solrJresponse = solr.query(query);
+      
+      SolrDocumentList list = solrJresponse.getResults();
+      
+    }    
+    finally {
+      if (solr != null)
+      {
+        solr.close();
+      }
+    }      
+    
+    return states;
+  }
+  
+  // Key = code, value = description
+  public static HashMap<String, String> getProcedures(int numRows) throws IOException
+  {
+    HashMap<String,String> codes = new HashMap<String,String>();
+    
+    return codes;    
+  }
+  
+  public static List<Provider> getProviders(int numRows, String state, String procedure) throws IOException
+  {  
 
-    return mapper.writeValueAsString(this);      
-
+    List<Provider> providers = new ArrayList<Provider>();
+    
+    return providers;
+  }
+  
+  public static List<Provider> getProviders(int numRows, String procedure, SortField sortBy, boolean ascending) throws IOException
+  {   
+    List<Provider> providers = new ArrayList<Provider>();
+   
+    return providers;  
+  }
+  
+  public static List<Provider> getProviders(int numRows, String queryTerm) throws IOException
+  {    
+    List<Provider> providers = new ArrayList<Provider>();
+    SolrClient solr = null;
+    
+    try {    
+      solr = new HttpSolrClient(solrUrlBase + "csvtest");      
+      
+      SolrQuery query = new SolrQuery();
+      
+      query.set("rows", numRows);
+      query.set("q", queryTerm);
+      query.setStart(0);
+    }    
+    finally {
+      if (solr != null)
+      {
+        solr.close();
+      }
+    }
+    
+    return providers;
   }
   
   public static void main(String[] args) throws IOException 
@@ -99,31 +175,6 @@ public class SolrQueryResponse {
     
     try {
 
-      // Examples using json parsing of results
-      SolrQueryResponse testResponse = new SolrQueryResponse();
-      testResponse.responseHeader.QTime = 3;
-      
-      System.out.println(testResponse.toJson());
-       
-      SolrQueryResponse response = new SolrQueryResponse(testResponse.toJson());
-  
-      response = new SolrQueryResponse(jsonNoResultResponse);
-  
-      if (false)
-      {
-        // This did work, but I had to tweak the classes for SolrJ
-        // (so any new SolrQueryResponse with json that has doc results fails)
-        response = new SolrQueryResponse(jsonResultsResponse);
-      
-        String testJson = response.toJson();
-        System.out.println(testJson);
-          
-        String queryJson = CrunchifyHelloWorld.GetSolrResponse("http://localhost:8983/solr/csvtest/select?wt=json&indent=true&q=knee&rows=10");
-        response = new SolrQueryResponse(queryJson);
-      
-        System.out.println("done - numResponse = " + response.response.numFound + "!");
-      }
-      
       // Using SolrJ to parse results.
 
       // Try SolrJ
@@ -138,7 +189,6 @@ public class SolrQueryResponse {
       solr = new HttpSolrClient("http://localhost:8983/solr/csvtest");      
       
       SolrQuery query = new SolrQuery();
-      //query.setQuery(mQueryString);
       
       query.set("rows", "10");
       query.set("q", "knee");
