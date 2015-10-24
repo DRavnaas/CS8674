@@ -1,14 +1,13 @@
-/build/
-target/
-
-.classpath
-.project
-.settings/
-
 *.class
+build/
+target/
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
+.settings/
+
+.project
+.classpath
 
 # Package Files #
 *.jar
@@ -17,8 +16,3 @@ target/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-
-dependency-reduced-pom.xml
-spark-solr.iml
-spark-solr.ipr
-spark-solr.iws
