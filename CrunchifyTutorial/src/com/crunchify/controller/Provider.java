@@ -43,7 +43,7 @@ public class Provider {
   }
   
   // Set this to null for Solr queries?
-  public ExtendedInfo providerInfo;
+  public ExtendedInfo providerDetails;
   
   public Provider(String id)
   {
@@ -53,6 +53,8 @@ public class Provider {
    // Constructor used by SolrJ
    public Provider(Map<String, Object> fields)
    {
+     this.providerDetails = null;  // Null = Solr doesn't have these details
+     
      this.id = fields.get("id").toString();
      for (String key : fields.keySet())
      {
