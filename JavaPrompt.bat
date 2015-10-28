@@ -13,7 +13,7 @@ set SPARK_HOME=c:\OpenSource\spark-1.5.0-bin-hadoop2.6
 set HADOOP_HOME=c:\OpenSource\hadoop-2.6.0
 set PERL_HOME=c:\opensource\Strawberry\perl
 
-set PATH=%java_home%\bin;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;%ant_home%\bin;C:\Python27;c:\progra~1\phantomjs\phantomjs-1.9.8;%localappdata%\GitHub\PortableGit_c2ba306e536fdf878271f7fe636a147ff37326ad\bin;C:\Progra~1\eclipse;%maven_home%\bin;%hadoop_home%\bin;%spark_home%\bin;%solr_home%\bin;%perl_home%\bin;
+set PATH=%java_home%\bin;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;%ant_home%\bin;C:\Python27;c:\progra~1\phantomjs\phantomjs-1.9.8;%localappdata%\GitHub\PortableGit_c2ba306e536fdf878271f7fe636a147ff37326ad\bin;C:\Progra~1\eclipse;%maven_home%\bin;%hadoop_home%\bin;%spark_home%\bin;%solr_home%\bin;%perl_home%\bin;%maven_home%\bin;
 
 @echo.
 @rem @if NOT /I "%~dp0" == "c:\opensource\" @if exist c:\opensource copy %0 c:\opensource
