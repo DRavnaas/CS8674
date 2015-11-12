@@ -233,9 +233,9 @@ public class ProviderTim {
      
      ObjectMapper mapper = new ObjectMapper();
      
-     Provider prov1 = mapper.readValue(json1, Provider.class);
+     Provider prov1 = (Provider) mapper.readValue(json1, Provider.class);
      
-     Provider prov2 = mapper.readValue(json2, Provider.class);
+     Provider prov2 = (Provider) mapper.readValue(json2, Provider.class);
 
      providers.add(prov1);
      providers.add(prov2);
