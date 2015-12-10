@@ -1,0 +1,82 @@
+Medicare Data Sets
+=====================
+
+The CMS government site has a bunch of data for public use.  We focused on the 2012 aggregated provider utilitization data.
+
+This data set lists providers and the procedures they charged medicare for, along with related information like their address, the doctor credentials, how many patients received that service, and some statistics  - averages and standard deviations on what was charged, what the patient paid and what medicare paid.
+
+The data is exported in 10 or so very large Excel spreadsheets.  We converted the spreadsheets to comma separated value files, since that’s easy to ingest and process.
+
+The raw size of the data was around 10 million rows in the combined CSVs.
+The search index we built from the data was nearly 2Gig in size
+The combined database table size was nearly 4 Gig in size
+
+
+Architecture
+==============
+
+So before we demo a few things, here’s a peek behind the curtains at the high level architecture.
+
+The middle portion represents our three tier hierarchy of client, server and database with the backend running in the Amazon cloud.
+
+On this side is our batch mode flow - how do we get the various bits of data processed and loaded into the backend so it can be accessed interactively by user.  Batch data included the 2012 provider data into Solr and Cassandra, as well as the various processing output of the machine learning and analytical processes - generally, this is data that needs to be processed once a year.   The batch mode processes can be as fancy as Spark or as simple as running a java app against the cloud hosted backend.
+
+The interactive flow represents what happens when a user accesses the web site via the browser.  The user picks one of the web site pages, the front end issues calls to the web service, the web service has a data access layer that knows how to talk to the backend to provide the data response.  The query results come back and the user sees the formatted data.
+
+We used spring MVC and tomcat to run the website and service, and we used various Amazon cloud services overall to host all of the server side.
+
+You’ll hear more about each of the major components in our flows, but first I’ll turn it over to Hunter to run us though a couple of our use cases.
+
+
+
+Solr in a nutshell
+====================
+
+Solr is a popular open source search engine - it’s based on the same core search library as Elastic Search. 
+
+It allows fast queries on a large indexed data set, with built in processing such as stemming and stop words for free text fields.
+
+It also allows for faceting, which I’ll explain in a minute.  
+
+It’s free, it has a relatively good wiki and plenty of people use it, and it’s very easy to install.  
+
+It also has a good admin UI that allows for experimentation on the fly.  If you had to give a quick demo in a day, you could get Solr up and running and a very simple index built.
+
+So Solr seemed like a good choice for a couple use cases that seemed to need faceting or free text search.  Initally, we did ingestion using the admin UI with a sample data set.  We got our various basic queries and cases working that way, and then moved over to loading the full 10 million rows.  The admin UI couldn’t handle that, but there’s a client library called SolrJ, and using that with OpenCSV made the larger ingestion pretty easy - maybe a day of coding and debugging.
+
+The harder part is defining your data schema - you have to decide which fields you want in the index, how you want them processed by Solr, what type of data they are - basically you have to tell Solr how to deal with each field.  You can also define a bag of words field for default keyword search - so our schema told Solr to copy a couple keyword rich fields into the default search field.  
+
+The net is that defining the right schema can take a while - it’s easy to get the first pass, and then you keep tuning as you go.  Most of the schema was defined in our first milestone, but I did have a tweak or two as our use cases grew more complicated.
+
+
+Solr faceting
+==============
+
+One of Solr’s big advantages is facet based search.  So what is faceting?
+
+Even if you don’t recognize faceting as a search term, I can almost guarantee that you’ve used it.  Amazon and many eCommerce sites use it often - it’s a great technique to use when you are trying to help a user navigate a large amount of data in a minimum number of clicks.
+
+So here’s a screen I clipped for Amazon, and and one of our use case pages using facets.  The Amazon page shows a couple categories so you can narrow down your printer results - without facets you’d have to scroll though thousands of results.
+
+We used Solr to help the user navigate to a specific provider specialty - first we show them providers by state, then by zip code, then finally by specialty.  We could have mixed these up to a different order - specialty first for example, or city instead of zip - finding a provider by state and then zip just happened to be our use case for this page.
+
+The nice thing about Solr is that all fields are automatically enabled for faceting.  If we decided we wanted city as a facet - yes, we’d have to get the UI strings right, but from the Solr server end, it’s just asking for the city fields as a facet.  
+
+The one gotcha is that faceting queries are generally harder to do correctly, but once you get the hang of it, they are very useful.
+
+
+Solr - looking back
+====================
+
+And now, after a few months, in retrospect, here’s what was easy, a little harder and harder still with Solr.
+
+The easy parts were getting the basics up and running - very easy to install, get our data ingested and some basic searches working.  For example, finding the busiest providers based on a service count field was easy, as was finding procedures based on a keyword in the procedure description.
+
+A little harder was getting faceting to work with state, zip and type of provider, as well as getting those more advanced queries to work with SolrJ and parsing the results - it still wasn’t rocket science, but it took some time.
+
+Finally, a few things that were trickier with Solr - and we didn’t bite off in this project were aggregation and a true fault tolerant configuration.  For aggregation - think of how it’s relatively easy to average a column from multiple rows in most databases.  For Solr, the aggregation operations are pretty simple - mostly the equivalent of a count of rows that satisfy the query.  There are some plugins that help, but you are wandering into advanced territory.  On the fault tolerant configuration - while that is a little more complicated since you need three instances of Solr and three instanced of Zookeeper - the main reason we didn’t do this was cost - Amazon gives us some for free but not enough.
+
+
+
+
+
